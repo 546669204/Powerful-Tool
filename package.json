@@ -1,0 +1,54 @@
+{
+	"name": "Powerful-Tool",
+	"displayName": "Powerful-Tool",
+  "description": "This is a multifunctional toolbox",
+  "publisher":"xiaoming",
+	"version": "0.0.1",
+	"engines": {
+		"vscode": "^1.30.0"
+  },
+  "repository":{
+    "type": "git",
+		"url": "https://github.com/546669204/Powerful-Tool.git"
+  },
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"*"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "extension.word_counter_count",
+				"title": "[Powerful Tool] [Word Counter] Dashboard"
+			},
+			{
+				"command": "extension.word_counter_reset",
+				"title": "[Powerful Tool] [Word Counter] Reset"
+			},
+			{
+				"command": "extension.word_counter_save",
+				"title": "[Powerful Tool] [Word Counter] Save"
+			}
+		]
+	},
+	"scripts": {
+		"vscode:prepublish": "yarn run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"postinstall": "node ./node_modules/vscode/bin/install",
+		"test": "yarn run compile && node ./node_modules/vscode/bin/test"
+	},
+	"devDependencies": {
+		"typescript": "^3.1.4",
+		"vscode": "^1.1.25",
+		"tslint": "^5.8.0",
+		"@types/node": "^8.10.25",
+		"@types/mocha": "^2.2.42"
+	},
+	"dependencies": {
+		"big-integer": "^1.6.40"
+	}
+}
