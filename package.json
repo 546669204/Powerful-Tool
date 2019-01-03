@@ -50,5 +50,6 @@
 	},
 	"dependencies": {
 		"big-integer": "^1.6.40"
-	}
+  },
+  "license": "MIT"
 }
