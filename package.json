@@ -1,15 +1,15 @@
 {
-	"name": "Powerful-Tool",
+	"name": "powerful-tool",
 	"displayName": "Powerful-Tool",
   "description": "This is a multifunctional toolbox",
   "publisher":"xiaoming",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"engines": {
 		"vscode": "^1.30.0"
   },
   "repository":{
     "type": "git",
-		"url": "https://github.com/546669204/Powerful-Tool.git"
+		"url": "https://github.com/546669204/vscode-powerful-tool.git"
   },
 	"categories": [
 		"Other"

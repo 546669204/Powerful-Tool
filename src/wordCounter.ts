@@ -37,28 +37,19 @@ class WordCounter {
     //初始化
     // var vscode = this.vscode;
     var StatusBarAlignment = vscode.StatusBarAlignment;
-    var window = vscode.window;
-    let dataJson = String(fs.readFileSync(path.join(this.getUserHomeDir()+"/.myTimer.cf")));
-    if(dataJson){
-      this.analysis = JSON.parse(dataJson);
-
-      this.analysis.Characters = bigInteger(this.analysis.Characters);
-      this.analysis.Words = bigInteger(this.analysis.Words);
-      this.analysis.Chinese = bigInteger(this.analysis.Chinese);
-      this.analysis.Paragraphs = bigInteger(this.analysis.Paragraphs);
-    }
+    this.readData();
     //statusBar，是需要手动释放的
-    this.statusBar = window.createStatusBarItem(StatusBarAlignment.Left);
+    this.statusBar = vscode.window.createStatusBarItem(StatusBarAlignment.Left);
 
     //跟注册事件相配合的数组，事件的注册，也是需要释放的
     var disposable:vscode.Disposable[] = [];
     
     //事件在注册的时候，会自动填充一个回调的dispose到数组
-
-    window.onDidChangeTextEditorSelection(this.updateText, this, disposable);
+    vscode.window.onDidChangeTextEditorSelection(this.updateText, this, disposable);
     vscode.workspace.onDidOpenTextDocument(this.saveData,this,disposable);
     vscode.workspace.onDidSaveTextDocument(this.saveData,this,disposable);
     vscode.workspace.onDidCloseTextDocument(this.saveData,this,disposable);
+    vscode.window.onDidChangeWindowState(this.forcusHandler,this,disposable)
 
     let disposableCount = vscode.commands.registerCommand('extension.word_counter_count', () => {
       let out = vscode.window.createOutputChannel("myTimer");
@@ -148,10 +139,31 @@ class WordCounter {
       Time:new Date().getTime()
     }
   }
+  readData(){
+    let dataJson = String(fs.readFileSync(path.join(this.getUserHomeDir()+"/.myTimer.cf")));
+    if(dataJson){
+      try {
+        this.analysis = JSON.parse(dataJson);
+      } catch (error) {
+        this.resetData();
+        return
+      }
+      this.analysis.Characters = bigInteger(this.analysis.Characters);
+      this.analysis.Words = bigInteger(this.analysis.Words);
+      this.analysis.Chinese = bigInteger(this.analysis.Chinese);
+      this.analysis.Paragraphs = bigInteger(this.analysis.Paragraphs);
+    }
+  }
   saveData(){
     fs.writeFileSync(path.join(os.homedir()+"/.myTimer.cf"),JSON.stringify(this.analysis))
   }
-
+  forcusHandler(res:vscode.WindowState){
+    if(!res.focused){
+      this.saveData();
+    }else{
+      this.readData();
+    }
+  }
   getUserHomeDir() {
     return (
       process.env[os.type() === "Windows_NT" ? "USERPROFILE" : "HOME"] || ""

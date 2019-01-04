@@ -11,6 +11,11 @@ This is a multifunctional toolbox
 
 ## Release Notes
 
+### 0.0.2
+
+* modify save logic
+* update name
+
 
 ### 0.0.1
 
