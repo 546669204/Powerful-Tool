@@ -91,7 +91,7 @@ class WordCounter {
       var content = this.editor.document.getText();
       
       let wordContent = content.substr(this.lastWordMap[this.editor.id] || content.length);
-      let chinaContent = content.replace(/[\r\n\s]+/g, "").match(/[\u4e00-\u9fa5]/gi);
+      let chinaContent = content.replace(/[\r\n\s]+/g, "").match(/[\u4e00-\u9fa5]/gi) || [];
       let wordsContent = [];
       content.replace(/[\r\n\s]+/g, " ").split(" ").forEach((v:any) => {
         if (v)wordsContent.push(v)
@@ -176,4 +176,5 @@ class WordCounter {
   }
 }
 
-module.exports = WordCounter;
+// module.exports = WordCounter;
+export default WordCounter;

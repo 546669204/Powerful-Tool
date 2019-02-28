@@ -106,10 +106,6 @@ class MyDate {
     return Math.ceil((this.format_DD() + t.getDay() + 1)/7);
   }
 }
-
-console.log(new MyDate(10000*1000).countdown("mm分ss秒"))
-
-
 export default MyDate
 
 
