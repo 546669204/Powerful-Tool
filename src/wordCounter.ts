@@ -18,8 +18,8 @@ class WordCounter {
   public analysis: Analysis;
   public statusBar: any;
   public disposable: any;
-  public editor: any;
-  public lastWordMap: { [key: string]: number };
+  public editor: vscode.TextEditor;
+  public lastWordMap: { [key: string]: {[key:string]:number} };
   public lastWordsMap: { [key: string]: number };
   public lastChineseMap: { [key: string]: number };
 
@@ -29,6 +29,7 @@ class WordCounter {
     this.lastWordsMap = {};
     this.lastChineseMap = {};
     this.analysis = {} as Analysis;
+    this.editor = {} as vscode.TextEditor;
     this.resetData();
     this.init();
   }
@@ -61,6 +62,7 @@ class WordCounter {
       out.show();
       out.dispose();
     });
+    
     let disposableReset = vscode.commands.registerCommand('extension.word_counter_reset', () => {
       this.resetData();
       this.saveData();
@@ -83,21 +85,48 @@ class WordCounter {
   
 
   }
+  selectionToIndex(content:string,line:number,character:number):number{
+
+    return 0
+  }
 
   updateText() {
     var window = vscode.window;
-    this.editor = window.activeTextEditor;
-    if (this.editor && this.editor.document) {
+
+    if (window.activeTextEditor && window.activeTextEditor.document) {
+      this.editor = window.activeTextEditor;
       var content = this.editor.document.getText();
+      let oneId = this.editor.document.uri.toString();
+      // let line = this.editor.selection.active.line;
+      // let character = this.editor.selection.active.character;
+      var selectionIndex = this.editor.document.offsetAt(this.editor.selection.active.translate());
+
+      if(!this.lastWordMap[oneId]){
+        this.lastWordMap[oneId] = {length:content.length,offset:selectionIndex}
+        return 
+      }
       
-      let wordContent = content.substr(this.lastWordMap[this.editor.id] || content.length);
+      if (content.length == this.lastWordMap[oneId].length){
+        this.lastWordMap[oneId].offset = selectionIndex;
+        return 
+      }
+
+      
+      
+      let oldSelectionIndex = this.lastWordMap[oneId].offset;
+      if (selectionIndex <= oldSelectionIndex){
+        return 
+      }
+      let changeContent = content.substring(oldSelectionIndex,selectionIndex);
+
+      let wordContent = changeContent;
       let chinaContent = content.replace(/[\r\n\s]+/g, "").match(/[\u4e00-\u9fa5]/gi) || [];
       let wordsContent = [];
       content.replace(/[\r\n\s]+/g, " ").split(" ").forEach((v:any) => {
         if (v)wordsContent.push(v)
       });
 
-      this.lastWordMap[this.editor.id] = content.length;
+      this.lastWordMap[oneId] = {length:content.length,offset:selectionIndex};
 
       this.analysis.Characters = this.analysis.Characters.add(bigInteger(wordContent.replace(/[\r\n\s]+/g, "").length));
       if (vscode.env.language == "zh-cn"){
@@ -111,20 +140,20 @@ class WordCounter {
       temp = wordContent.match(/\n/gi)
       this.analysis.Paragraphs = this.analysis.Paragraphs.add(bigInteger(temp&&temp.length||0)); // 换行 计数
 
-      if(!this.lastChineseMap[this.editor.id])this.lastChineseMap[this.editor.id] = chinaContent.length;
+      if(!this.lastChineseMap[oneId])this.lastChineseMap[oneId] = chinaContent.length;
 
-      if(chinaContent.length - this.lastChineseMap[this.editor.id] >0){
-        this.analysis.Chinese = this.analysis.Chinese.add(bigInteger(chinaContent.length - this.lastChineseMap[this.editor.id])); // 汉字 计数
+      if(chinaContent.length - this.lastChineseMap[oneId] >0){
+        this.analysis.Chinese = this.analysis.Chinese.add(bigInteger(chinaContent.length - this.lastChineseMap[oneId])); // 汉字 计数
       }
-      this.lastChineseMap[this.editor.id] = chinaContent.length;
+      this.lastChineseMap[oneId] = chinaContent.length;
 
 
-      if(!this.lastWordsMap[this.editor.id])this.lastWordsMap[this.editor.id] = wordsContent.length;
+      if(!this.lastWordsMap[oneId])this.lastWordsMap[oneId] = wordsContent.length;
 
-      if(wordsContent.length - this.lastWordsMap[this.editor.id] >0){
-        this.analysis.Words = this.analysis.Words.add(bigInteger(wordsContent.length - this.lastWordsMap[this.editor.id])); // 词组 计数
+      if(wordsContent.length - this.lastWordsMap[oneId] >0){
+        this.analysis.Words = this.analysis.Words.add(bigInteger(wordsContent.length - this.lastWordsMap[oneId])); // 词组 计数
       }
-      this.lastWordsMap[this.editor.id] = wordsContent.length;
+      this.lastWordsMap[oneId] = wordsContent.length;
 
 
       
